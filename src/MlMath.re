@@ -15,7 +15,7 @@ let dot = fun (x, y) => {
     let m = Array.make_matrix height length 0.;
     for i in (0) to (height - 1) {
         for j in (0) to (length - 1) {
-            Array.set(Array.get m i) j (rowxcol (x, y, i, j, (Array.length y) - 1))
+            Array.set(Array.get m i) j (rowxcol (x, y, i, j, (Array.length y) - 1));
         };
     };
     m;
@@ -52,4 +52,14 @@ let distance = fun (x, y) => {
     };
     let sqsum = sumsquared(x, y);
     sqrt(sqsum);
+};
+
+/*
+ * derivative of tanh
+ * tanh is a built in function
+ * float => float
+ */
+let tanhPrime = fun (x) => {
+    let tanhx = tanh(x);
+    1. -. (tanhx *. tanhx);
 };
