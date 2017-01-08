@@ -1,3 +1,6 @@
+/*
+ * Takes in an Array of n dimensiona data and clusters it into k clusters.
+ */
 let cluster = fun (x, k) => {
     /*
      * Finds the smallest and largest value per dimension
@@ -17,10 +20,26 @@ let cluster = fun (x, k) => {
         (dimensional_mins, dimensional_maxs);
     };
 
+    /*
+     * this creates centroids randomly near the data
+     * (array (array float), int, int) => array (array float)
+     */
+    let init_centroids = fun (x, k, num_dimensions) => {
+        let centroids = Array.make_matrix k num_dimensions 0.;
+        let (mins, maxs) = dimensional_min_max(x);
+        for i in (0) to (k - 1) {
+            for j in (0) to (num_dimensions - 1) {
+                Array.set (Array.get centroids i) j
+                    ((Random.float (Array.get maxs j)) +. (Array.get mins j));
+            };
+        };
+        centroids;
+    };
+
     /* number of dimentions for every point*/
     let num_dimensions = Array.length(Array.get x 0);
     let clusters = Array.make_matrix k 0 (Array.make_float 0);
-    let centroids = Array.make_matrix k num_dimensions 0.;
-    let (mins, maxs) = dimensional_min_max(x);
+    let centroids = init_centroids(x, k, num_dimensions);
+    let prev_centroids = Array.make_matrix k num_dimensions 0.;
     clusters;
 };
