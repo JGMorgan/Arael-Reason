@@ -36,6 +36,33 @@ let cluster = fun (x, k) => {
         centroids;
     };
 
+    /*
+     * Deep compare for two matrices
+     */
+    let matrix_equals = fun (x, y) => {
+        let rec matrix_equals_help = fun (x, y, length, height, i, j) => {
+            let elem_x = Array.get (Array.get x i) j;
+            let elem_y = Array.get (Array.get y i) j;
+            switch (elem_x, elem_y) {
+                | elem_x != elem_y => false;
+                | elem_x == elem_y =>
+                    switch (length, height, i, j) {
+                        | i == (height - 1), j == (length - 1) => true;
+                        | j == (length - 1) => matrix_equals_help(x, y, length, height, i + 1, 0);
+                        | _ => matrix_equals_help(x, y, length, height, i, j + 1);
+                    };
+            };
+        };
+
+        let heightx = Array.length x;
+        let lengthx = Array.length(Array.get x 0);
+        let heighty = Array.length y;
+        let lengthy = Array.length(Array.get y 0);
+        switch () {
+
+        };
+    };
+
     /* number of dimentions for every point*/
     let num_dimensions = Array.length(Array.get x 0);
     let clusters = Array.make_matrix k 0 (Array.make_float 0);
