@@ -38,19 +38,25 @@ let cluster = fun (x, k) => {
 
     /*
      * Deep compare for two matrices
+     * (array (array 'a), array (array 'a)) => bool
      */
     let matrix_equals = fun (x, y) => {
+        /*
+         * Assuming the length and height of the matrices are equal,
+         * this does the element wise comparison
+         * (array (array 'a), array (array 'a), int, int, int, int) => bool
+         */
         let rec matrix_equals_help = fun (x, y, length, height, i, j) => {
             let elem_x = Array.get (Array.get x i) j;
             let elem_y = Array.get (Array.get y i) j;
-            switch (elem_x, elem_y) {
-                | elem_x != elem_y => false;
-                | elem_x == elem_y =>
-                    switch (length, height, i, j) {
-                        | i == (height - 1), j == (length - 1) => true;
-                        | j == (length - 1) => matrix_equals_help(x, y, length, height, i + 1, 0);
+            switch (elem_x == elem_y) {
+                | true =>
+                    switch (height == i + 1, length == j + 1) {
+                        | (true, true) => true;
+                        | (false, true) => matrix_equals_help(x, y, length, height, i + 1, 0);
                         | _ => matrix_equals_help(x, y, length, height, i, j + 1);
                     };
+                | false => false;
             };
         };
 
@@ -58,8 +64,9 @@ let cluster = fun (x, k) => {
         let lengthx = Array.length(Array.get x 0);
         let heighty = Array.length y;
         let lengthy = Array.length(Array.get y 0);
-        switch () {
-
+        switch (heightx == heighty, lengthx == lengthy) {
+            | (true, true) => matrix_equals_help(x, y, lengthx, heightx, 0, 0);
+            | _ => false;
         };
     };
 
