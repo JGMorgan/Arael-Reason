@@ -1,5 +1,23 @@
 /*
+ * Euclidean distance between two n dimensional points.
+ * (array float, array float) => float
+ */
+let distance = fun (x, y) => {
+    let rec sumsquared = fun (x, y) => {
+        switch (x, y) {
+            | ([], []) => 0.;
+            | ([headx, ...tailx], [heady, ...taily]) =>
+                (headx -. heady) *. (headx -. heady) +. sumsquared(tailx, taily);
+            | _ => 0.;
+        };
+    };
+    let sqsum = sumsquared(Array.to_list x, Array.to_list y);
+    sqrt(sqsum);
+};
+
+/*
  * Takes in an Array of n dimensiona data and clusters it into k clusters.
+ * (array (array float), int) => array (array (array float))
  */
 let cluster = fun (x, k) => {
     /*
@@ -70,10 +88,77 @@ let cluster = fun (x, k) => {
         };
     };
 
+    /*
+     * finds the minimum value and minimum index of a list
+     * (list 'a, 'a, int, int) => int
+     */
+    let rec find_min_index = fun (x, min, pos, i) => {
+        switch (x) {
+            | [] => pos;
+            | [elem] =>
+                switch (elem > min) {
+                    | true => pos;
+                    | false => i;
+                };
+            | [head, ...tail] =>
+                switch (head > min) {
+                    | true => find_min_index (tail, min, pos, i + 1);
+                    | false => find_min_index (tail, head, i, i + 1);
+                };
+        };
+    };
+
+    /*
+     * finds the average value of a certain dimension
+     * (array (array (array float)), int, int) => array float
+     */
+    let rec dimensional_average = fun (clusters, i, num_dimensions) => {
+        /*
+         * finds the sum of a certain dimension j in a cluster
+         * (list (array float), int) => float
+         */
+        let rec dimensional_average_sum = fun (cluster, j) => {
+            switch (cluster) {
+                | [] => 0.;
+                | [head, ...tail] =>
+                    (Array.get head j) +. dimensional_average_sum(tail, j);
+            };
+        };
+
+        let cluster = Array.to_list (Array.get clusters i);
+        let averages = Array.make_float num_dimensions;
+        let cluster_size = Array.length (Array.get clusters i);
+        Array.mapi
+            (fun j x => {dimensional_average_sum(cluster, j) /. float_of_int(cluster_size)})
+            averages;
+    };
+
     /* number of dimentions for every point*/
     let num_dimensions = Array.length(Array.get x 0);
+    /* clusters is initialized to an empty float 3d array*/
     let clusters = Array.make_matrix k 0 (Array.make_float 0);
     let centroids = init_centroids(x, k, num_dimensions);
     let prev_centroids = Array.make_matrix k num_dimensions 0.;
+
+    while (matrix_equals(centroids, prev_centroids)) {
+        /* prev_centroids = centroids*/
+        for i in (0) to (k - 1) {
+            Array.set prev_centroids i (Array.copy (Array.get centroids i));
+        };
+
+        /* clustering*/
+        let height = Array.length x;
+        for i in (0) to (height - 1) {
+            let distances = Array.map (fun a => distance(Array.get x i, a)) centroids;
+            let min_ind = find_min_index(Array.to_list distances, max_float, 0, 0);
+            Array.set clusters min_ind
+                (Array.append (Array.get clusters min_ind) (Array.make 1 (Array.get x i)));
+        };
+
+        /* adjust centroids*/
+        for i in (0) to (k - 1) {
+            Array.set centroids i (dimensional_average(clusters, i, num_dimensions));
+        };
+    };
     clusters;
 };
