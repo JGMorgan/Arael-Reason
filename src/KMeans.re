@@ -1,4 +1,5 @@
 /*
+ * tested and working
  * Euclidean distance between two n dimensional points.
  * (array float, array float) => float
  */
@@ -16,11 +17,13 @@ let distance = fun (x, y) => {
 };
 
 /*
+ * not working
  * Takes in an Array of n dimensiona data and clusters it into k clusters.
  * (array (array float), int) => array (array (array float))
  */
 let cluster = fun (x, k) => {
     /*
+     * tested and working
      * Finds the smallest and largest value per dimension
      * array (array 'a) => (array 'a, array 'a)
      */
@@ -39,6 +42,7 @@ let cluster = fun (x, k) => {
     };
 
     /*
+     * tested and working
      * this creates centroids randomly near the data
      * (array (array float), int, int) => array (array float)
      */
@@ -55,6 +59,7 @@ let cluster = fun (x, k) => {
     };
 
     /*
+     * tested and working
      * Deep compare for two matrices
      * (array (array 'a), array (array 'a)) => bool
      */
@@ -89,6 +94,7 @@ let cluster = fun (x, k) => {
     };
 
     /*
+     * tested and working
      * finds the minimum value and minimum index of a list
      * (list 'a, 'a, int, int) => int
      */
@@ -109,6 +115,7 @@ let cluster = fun (x, k) => {
     };
 
     /*
+     * tested and working
      * finds the average value of a certain dimension
      * (array (array (array float)), int, int) => array float
      */
@@ -133,6 +140,24 @@ let cluster = fun (x, k) => {
             averages;
     };
 
+    /*
+     * tested and working
+     * converts float matrix to int matrix
+     * array (array float) => array (array int)
+     */
+    let rec int_matrix_of_float_matrix = fun (centroids) => {
+        let height = Array.length centroids;
+        let length = Array.length (Array.get centroids 0);
+        let int_centroids = Array.make_matrix height length 0;
+        for i in (0) to (height - 1) {
+            for j in (0) to (length - 1) {
+                Array.set (Array.get int_centroids i) j
+                    (int_of_float(Array.get (Array.get centroids i) j));
+            };
+        };
+        int_centroids;
+    };
+
     /* number of dimentions for every point*/
     let num_dimensions = Array.length(Array.get x 0);
     /* clusters is initialized to an empty float 3d array*/
@@ -140,10 +165,14 @@ let cluster = fun (x, k) => {
     let centroids = init_centroids(x, k, num_dimensions);
     let prev_centroids = Array.make_matrix k num_dimensions 0.;
 
-    while (matrix_equals(centroids, prev_centroids)) {
-        /* prev_centroids = centroids*/
+    while (not(matrix_equals(int_matrix_of_float_matrix(centroids),
+        int_matrix_of_float_matrix(prev_centroids)))) {
+        /* prev_centroids = centroids
+         * clear clusters
+         */
         for i in (0) to (k - 1) {
             Array.set prev_centroids i (Array.copy (Array.get centroids i));
+            Array.set clusters i (Array.make_matrix 0 0 0.);
         };
 
         /* clustering*/
@@ -162,3 +191,23 @@ let cluster = fun (x, k) => {
     };
     clusters;
 };
+
+let print_clusters = fun(x) => {
+    for i in (0) to ((Array.length x) - 1) {
+        print_int i;
+        print_newline();
+        for j in (0) to ((Array.length (Array.get x i)) - 1) {
+            print_newline();
+            for k in (0) to ((Array.length (Array.get (Array.get x i) j)) - 1) {
+                print_float(Array.get (Array.get (Array.get x i) j) k);
+                print_string("  ");
+            };
+        };
+    };
+};
+
+let test_data = Array.make_matrix 50 1 0.;
+for i in (0) to ((Array.length test_data) - 1) {
+    Array.set (Array.get test_data i) 0 (Random.float 50.);
+};
+print_clusters(cluster(test_data, 5));
