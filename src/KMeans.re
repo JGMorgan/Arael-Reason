@@ -140,24 +140,6 @@ let cluster = fun (x, k) => {
             averages;
     };
 
-    /*
-     * tested and working
-     * converts float matrix to int matrix
-     * array (array float) => array (array int)
-     */
-    let rec int_matrix_of_float_matrix = fun (centroids) => {
-        let height = Array.length centroids;
-        let length = Array.length (Array.get centroids 0);
-        let int_centroids = Array.make_matrix height length 0;
-        for i in (0) to (height - 1) {
-            for j in (0) to (length - 1) {
-                Array.set (Array.get int_centroids i) j
-                    (int_of_float(Array.get (Array.get centroids i) j));
-            };
-        };
-        int_centroids;
-    };
-
     /* number of dimentions for every point*/
     let num_dimensions = Array.length(Array.get x 0);
     /* clusters is initialized to an empty float 3d array*/
@@ -165,8 +147,7 @@ let cluster = fun (x, k) => {
     let centroids = init_centroids(x, k, num_dimensions);
     let prev_centroids = Array.make_matrix k num_dimensions 0.;
 
-    while (not(matrix_equals(int_matrix_of_float_matrix(centroids),
-        int_matrix_of_float_matrix(prev_centroids)))) {
+    while (not(matrix_equals(centroids, prev_centroids))) {
         /* prev_centroids = centroids
          * clear clusters
          */
@@ -191,23 +172,3 @@ let cluster = fun (x, k) => {
     };
     clusters;
 };
-
-let print_clusters = fun(x) => {
-    for i in (0) to ((Array.length x) - 1) {
-        print_int i;
-        print_newline();
-        for j in (0) to ((Array.length (Array.get x i)) - 1) {
-            print_newline();
-            for k in (0) to ((Array.length (Array.get (Array.get x i) j)) - 1) {
-                print_float(Array.get (Array.get (Array.get x i) j) k);
-                print_string("  ");
-            };
-        };
-    };
-};
-
-let test_data = Array.make_matrix 50 1 0.;
-for i in (0) to ((Array.length test_data) - 1) {
-    Array.set (Array.get test_data i) 0 (Random.float 50.);
-};
-print_clusters(cluster(test_data, 5));

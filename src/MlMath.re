@@ -1,3 +1,6 @@
+/* Euler's number to 31 decimal places*/
+let e = 2.7182818284590452353602874713527;
+
 /*
  * Dot product of two matrices
  * (array (array float), array (array float)) => array (array float)
@@ -47,7 +50,7 @@ let distance = fun (x, y) => {
             | ([], []) => 0.;
             | ([headx, ...tailx], [heady, ...taily]) =>
                 (headx -. heady) *. (headx -. heady) +. sumsquared(tailx, taily);
-            | _ => 0.;
+            | _ => 0.; /* TODO error */
         };
     };
     let sqsum = sumsquared(x, y);
@@ -62,4 +65,9 @@ let distance = fun (x, y) => {
 let tanhPrime = fun (x) => {
     let tanhx = tanh(x);
     1. -. (tanhx *. tanhx);
+};
+
+/*TODO how on earth does exponentiation work in reason :(*/
+let sigmoid = fun (x) => {
+
 };
