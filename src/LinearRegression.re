@@ -15,6 +15,10 @@ let regression_predict = fun(x, y) => {
     regression_sum(Array.to_list new_x, Array.to_list y);
 };
 
+/*
+ * runs linear regression prediction
+ * (array float, array float) => float
+ */
 let predict = fun(x, y) => {
     regression_predict(x, y);
 };

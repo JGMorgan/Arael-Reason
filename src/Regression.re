@@ -9,7 +9,7 @@ let regression_predict = fun(x, y) => {
             | ([], []) => 0.;
             | ([headx, ...tailx], [heady, ...taily]) =>
                 (headx *. heady) +. regression_sum(tailx, taily);
-            | _ => 0.; /* TODO error */
+            | _ => failwith "Input lists should be of equal length"; /* TODO error */
         };
     };
     regression_sum(Array.to_list new_x, Array.to_list y);

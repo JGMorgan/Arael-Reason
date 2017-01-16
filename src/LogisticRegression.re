@@ -14,3 +14,15 @@ let regression_predict = fun(x, y) => {
     };
     regression_sum(Array.to_list new_x, Array.to_list y);
 };
+
+let sigmoid = fun (x) => {
+    /*1. /. (1. +. (e ** -x));*/
+};
+
+/*
+ * runs linear regression prediction
+ * (array float, array float) => float
+ */
+let predict = fun(x, y) => {
+    sigmoid(regression_predict(x, y));
+};

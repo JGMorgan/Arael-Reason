@@ -1,3 +1,5 @@
+/* TODO figure out error with module system*/
+
 /* Euler's number to 31 decimal places*/
 let e = 2.7182818284590452353602874713527;
 
@@ -50,7 +52,7 @@ let distance = fun (x, y) => {
             | ([], []) => 0.;
             | ([headx, ...tailx], [heady, ...taily]) =>
                 (headx -. heady) *. (headx -. heady) +. sumsquared(tailx, taily);
-            | _ => 0.; /* TODO error */
+            | _ => failwith "Input lists should be of equal length"; /* TODO error */
         };
     };
     let sqsum = sumsquared(x, y);
@@ -69,5 +71,5 @@ let tanhPrime = fun (x) => {
 
 /*TODO how on earth does exponentiation work in reason :(*/
 let sigmoid = fun (x) => {
-
+    /*1. /. (1. +. (e ** -x));*/
 };
