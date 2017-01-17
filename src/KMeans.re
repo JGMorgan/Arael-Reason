@@ -1,5 +1,4 @@
 /*
- * tested and working
  * Euclidean distance between two n dimensional points.
  * (array float, array float) => float
  */
@@ -17,13 +16,12 @@ let distance = fun (x, y) => {
 };
 
 /*
- * not working
  * Takes in an Array of n dimensiona data and clusters it into k clusters.
  * (array (array float), int) => array (array (array float))
  */
 let cluster = fun (x, k) => {
+
     /*
-     * tested and working
      * Finds the smallest and largest value per dimension
      * array (array 'a) => (array 'a, array 'a)
      */
@@ -42,7 +40,6 @@ let cluster = fun (x, k) => {
     };
 
     /*
-     * tested and working
      * this creates centroids randomly near the data
      * (array (array float), int, int) => array (array float)
      */
@@ -59,7 +56,6 @@ let cluster = fun (x, k) => {
     };
 
     /*
-     * tested and working
      * Deep compare for two matrices
      * (array (array 'a), array (array 'a)) => bool
      */
@@ -94,7 +90,6 @@ let cluster = fun (x, k) => {
     };
 
     /*
-     * tested and working
      * finds the minimum value and minimum index of a list
      * (list 'a, 'a, int, int) => int
      */
@@ -115,7 +110,6 @@ let cluster = fun (x, k) => {
     };
 
     /*
-     * tested and working
      * finds the average value of a certain dimension
      * (array (array (array float)), int, int) => array float
      */

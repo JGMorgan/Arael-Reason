@@ -27,6 +27,82 @@ let dot = fun (x, y) => {
 };
 
 /*
+ * calculates the determinant of a matrix
+ * array (array float) => float
+ */
+let rec determinant = fun (x) => {
+    /*
+     * returns a new matrix without a certain row and column
+     * (array (array float), int, int) => array (array float)
+     */
+    let remove_row_and_col = fun (x, row, col) => {
+        /* rows == cols since this is for a square matrix*/
+        let rows_and_cols = Array.length x;
+        let new_matrix = Array.make_matrix (rows_and_cols - 1) (rows_and_cols - 1) 0.;
+
+        /*
+         * iterates through a matrix and filters out a row and column
+         * (int, int, int, int) => array (array float)
+         */
+        let rec filter_row_col = fun (i, j, new_i, new_j) => {
+            switch (i == row, j == col) {
+                | (false, false) =>
+                    {
+                        Array.set (Array.get new_matrix new_i) new_j
+                            (Array.get (Array.get x i) j);
+                        switch (i == rows_and_cols - 1, j == rows_and_cols - 1) {
+                            | (true, true) => new_matrix;
+                            | (_, true) => filter_row_col(i + 1, 0, new_i + 1, 0);
+                            | _ => filter_row_col(i, j + 1, new_i, new_j + 1);
+                        };
+                    };
+                | (true, true) =>
+                    switch (i == rows_and_cols - 1, j == rows_and_cols - 1) {
+                        | (true, true) => new_matrix;
+                        | (_, true) => filter_row_col(i + 1, 0, new_i, 0);
+                        | _ => filter_row_col(i, j + 1, new_i, new_j);
+                    };
+                | (true, false) =>
+                    switch (i == rows_and_cols - 1, j == rows_and_cols - 1) {
+                        | (true, true) => new_matrix;
+                        | (_, true) => filter_row_col(i + 1, 0, new_i, 0);
+                        | _ => filter_row_col(i, j + 1, new_i, new_j + 1);
+                    };
+                | (false, true) =>
+                    switch (i == rows_and_cols - 1, j == rows_and_cols - 1) {
+                        | (true, true) => new_matrix;
+                        | (_, true) => filter_row_col(i + 1, 0, new_i, 0);
+                        | _ => filter_row_col(i, j + 1, new_i, new_j);
+                    };
+            };
+
+        };
+        filter_row_col(0, 0, 0, 0);
+    };
+    
+    switch (Array.length x, Array.length (Array.get x 0)) {
+        | (1, 1) => (Array.get (Array.get x 0) 0);
+        | (2, 2) => ((Array.get (Array.get x 0) 0) *. (Array.get (Array.get x 1) 1))
+            -. ((Array.get (Array.get x 1) 0) *. (Array.get (Array.get x 0) 1));
+        | (n, m) =>
+            switch (n == m) {
+                | false => failwith "Determinant is only defined for a square matrix."
+                | true =>
+                    {
+                        let determinants = Array.mapi
+                            (fun i a => {
+                                switch (i mod 2 == 0) {
+                                    | true => a *. determinant(remove_row_and_col(x, 0, i));
+                                    | false => -. a *. determinant(remove_row_and_col(x, 0, i));
+                                };
+                            }) (Array.get x 0);
+                        Array.fold_left (fun a b => {a +. b;}) 0. determinants;
+                    };
+            };
+    };
+};
+
+/*
  * Transpose a matrix
  * array (array 'a) => array (array 'a)
  */
