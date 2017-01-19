@@ -115,37 +115,22 @@ let transpose = fun (x) => {
 };
 
 /*
- * Deep compare for two matrices
- * (array (array 'a), array (array 'a)) => bool
+ * Deep compare for two arrays
+ * (array 'a, array 'a) => bool
  */
-let matrix_equals = fun (x, y) => {
+let array_equals = fun (x, y) => {
     /*
-     * Assuming the length and height of the matrices are equal,
      * this does the element wise comparison
-     * (array (array 'a), array (array 'a), int, int, int, int) => bool
+     * (list a', list a') => bool
      */
-    let rec matrix_equals_help = fun (x, y, length, height, i, j) => {
-        let elem_x = Array.get (Array.get x i) j;
-        let elem_y = Array.get (Array.get y i) j;
-        switch (elem_x == elem_y) {
-            | true =>
-                switch (height == i + 1, length == j + 1) {
-                    | (true, true) => true;
-                    | (false, true) => matrix_equals_help(x, y, length, height, i + 1, 0);
-                    | _ => matrix_equals_help(x, y, length, height, i, j + 1);
-                };
-            | false => false;
+    let rec array_equals_help = fun (x, y) => {
+        switch (x, y) {
+            | ([], []) => true;
+            | ([headx, ...tailx], [heady, ...taily]) => (headx == heady) && array_equals_help(tailx, taily);
+            | _ => false;
         };
     };
-
-    let heightx = Array.length x;
-    let lengthx = Array.length(Array.get x 0);
-    let heighty = Array.length y;
-    let lengthy = Array.length(Array.get y 0);
-    switch (heightx == heighty, lengthx == lengthy) {
-        | (true, true) => matrix_equals_help(x, y, lengthx, heightx, 0, 0);
-        | _ => false;
-    };
+    array_equals_help(Array.to_list x, Array.to_list y);
 };
 
 /*
@@ -177,13 +162,41 @@ let predict = fun (x, theta) => {
  */
 let train = fun (x, y, alpha, try_closed_formula, use_bgd) => {
 
+    /*
+     * runs batch gradient descent on the training set
+     * returns theta vector
+     * (array (array float), array float, float) => array float
+     */
     let batch_gradient_descent = fun (x, y, alpha) => {
-
+        let theta = Array.make (Array.length (Array.get x 0)) 0.;
+        let prev_theta = Array.make (Array.length theta) 1.;
+        while (not(array_equals(theta, prev_theta))) {
+            /* copy theta into prev_theta
+             * and takes a training step
+             */
+            for i in (0) to ((Array.length theta) - 1) {
+                Array.set prev_theta i (Array.get theta i);
+                let errors = Array.mapi 
+                    (fun j el_x => {((Array.get y j) -. predict(el_x, theta)) *. (Array.get el_x i)}) x;
+                let total_err = Array.fold_left
+                    (fun a b => {a +. b}) 0. errors;
+                Array.set theta i ((Array.get theta i) +. (alpha *. total_err)); 
+            }; 
+        };
+        theta;
     };
     
     let stochastic_gradient_descent = fun (x, y, alpha) => {
 
+        let theta = Array.make (Array.length (Array.get x 0)) 0.;
+        let prev_theta = Array.make (Array.length theta) 1.;
+        while (not(matrix_equals(theta, prev_theta))) {
+            for i in (0) to ((Array.length theta) - 1) {
+                Array.set prev_theta i (Array.get theta i);
+            };
+        };
     };
+
     /*1 is interted into into x because 1 * some multiplier 
     will be the constant in our regression function*/
     let new_x = Array.append x (Array.make 1 1.);
