@@ -186,15 +186,35 @@ let train = fun (x, y, alpha, try_closed_formula, use_bgd) => {
         theta;
     };
     
+    /*
+     * runs stochastic gradient descent on the training set
+     * returns theta vector
+     * (array (array float), array float, float) => array float
+     */
     let stochastic_gradient_descent = fun (x, y, alpha) => {
 
+        /*
+         * Basically python's xrange
+         */
+        let xrange n => Stream.from 
+            (fun i => {
+                switch (i > n) {
+                    | true => None;
+                    | false => Some i;
+                };
+            });
         let theta = Array.make (Array.length (Array.get x 0)) 0.;
         let prev_theta = Array.make (Array.length theta) 1.;
-        while (not(matrix_equals(theta, prev_theta))) {
+        let j_iter = xrange max_int;
+        while (not(array_equals(theta, prev_theta))) {
             for i in (0) to ((Array.length theta) - 1) {
                 Array.set prev_theta i (Array.get theta i);
+                let j = Stream.next j_iter;
+                let error = ((Array.get y j) -. predict(Array.get x j, theta)) *. Array.get (Array.get x j) i;
+                Array.set theta i ((Array.get theta i) +. (alpha *. error));
             };
         };
+        theta;
     };
 
     /*1 is interted into into x because 1 * some multiplier 
@@ -204,10 +224,18 @@ let train = fun (x, y, alpha, try_closed_formula, use_bgd) => {
     switch (try_closed_formula) {
         | true => 
             switch (determinant(dot(xT, new_x))) {
-                | 0. => /*iterative*/();
-                | _  => ();
+                | 0. => /*iterative*/
+                    switch (use_bgd) {
+                        | true => batch_gradient_descent(x, y, alpha);
+                        | false => stochastic_gradient_descent(x, y, alpha);
+                    };
+                | _  => batch_gradient_descent(x, y, alpha);
             };
-        | false => /*iterative*/();
+        | false => /*iterative*/
+            switch (use_bgd) {
+                | true => batch_gradient_descent(x, y, alpha);
+                | false => stochastic_gradient_descent(x, y, alpha);
+            };
     };
        
 };
