@@ -27,59 +27,60 @@ let dot = fun (x, y) => {
 };
 
 /*
+ * returns a new matrix without a certain row and column
+ * (array (array float), int, int) => array (array float)
+ */
+let remove_row_and_col = fun (x, row, col) => {
+    /* rows == cols since this is for a square matrix*/
+    let rows_and_cols = Array.length x;
+    let new_matrix = Array.make_matrix (rows_and_cols - 1) (rows_and_cols - 1) 0.;
+
+    /*
+     * iterates through a matrix and filters out a row and column
+     * (int, int, int, int) => array (array float)
+     */
+    let rec filter_row_col = fun (i, j, new_i, new_j) => {
+        switch (i == row, j == col) {
+            | (false, false) =>
+                {
+                    Array.set (Array.get new_matrix new_i) new_j
+                        (Array.get (Array.get x i) j);
+                    switch (i == rows_and_cols - 1, j == rows_and_cols - 1) {
+                        | (true, true) => new_matrix;
+                        | (_, true) => filter_row_col(i + 1, 0, new_i + 1, 0);
+                        | _ => filter_row_col(i, j + 1, new_i, new_j + 1);
+                    };
+                };
+            | (true, true) =>
+                switch (i == rows_and_cols - 1, j == rows_and_cols - 1) {
+                    | (true, true) => new_matrix;
+                    | (_, true) => filter_row_col(i + 1, 0, new_i, 0);
+                    | _ => filter_row_col(i, j + 1, new_i, new_j);
+                };
+            | (true, false) =>
+                switch (i == rows_and_cols - 1, j == rows_and_cols - 1) {
+                    | (true, true) => new_matrix;
+                    | (_, true) => filter_row_col(i + 1, 0, new_i, 0);
+                    | _ => filter_row_col(i, j + 1, new_i, new_j + 1);
+                };
+            | (false, true) =>
+                switch (i == rows_and_cols - 1, j == rows_and_cols - 1) {
+                    | (true, true) => new_matrix;
+                    | (_, true) => filter_row_col(i + 1, 0, new_i, 0);
+                    | _ => filter_row_col(i, j + 1, new_i, new_j);
+                };
+        };
+
+    };
+    filter_row_col(0, 0, 0, 0);
+};
+
+/*
  * calculates the determinant of a matrix
  * array (array float) => float
  */
 let rec determinant = fun (x) => {
-    /*
-     * returns a new matrix without a certain row and column
-     * (array (array float), int, int) => array (array float)
-     */
-    let remove_row_and_col = fun (x, row, col) => {
-        /* rows == cols since this is for a square matrix*/
-        let rows_and_cols = Array.length x;
-        let new_matrix = Array.make_matrix (rows_and_cols - 1) (rows_and_cols - 1) 0.;
-
-        /*
-         * iterates through a matrix and filters out a row and column
-         * (int, int, int, int) => array (array float)
-         */
-        let rec filter_row_col = fun (i, j, new_i, new_j) => {
-            switch (i == row, j == col) {
-                | (false, false) =>
-                    {
-                        Array.set (Array.get new_matrix new_i) new_j
-                            (Array.get (Array.get x i) j);
-                        switch (i == rows_and_cols - 1, j == rows_and_cols - 1) {
-                            | (true, true) => new_matrix;
-                            | (_, true) => filter_row_col(i + 1, 0, new_i + 1, 0);
-                            | _ => filter_row_col(i, j + 1, new_i, new_j + 1);
-                        };
-                    };
-                | (true, true) =>
-                    switch (i == rows_and_cols - 1, j == rows_and_cols - 1) {
-                        | (true, true) => new_matrix;
-                        | (_, true) => filter_row_col(i + 1, 0, new_i, 0);
-                        | _ => filter_row_col(i, j + 1, new_i, new_j);
-                    };
-                | (true, false) =>
-                    switch (i == rows_and_cols - 1, j == rows_and_cols - 1) {
-                        | (true, true) => new_matrix;
-                        | (_, true) => filter_row_col(i + 1, 0, new_i, 0);
-                        | _ => filter_row_col(i, j + 1, new_i, new_j + 1);
-                    };
-                | (false, true) =>
-                    switch (i == rows_and_cols - 1, j == rows_and_cols - 1) {
-                        | (true, true) => new_matrix;
-                        | (_, true) => filter_row_col(i + 1, 0, new_i, 0);
-                        | _ => filter_row_col(i, j + 1, new_i, new_j);
-                    };
-            };
-
-        };
-        filter_row_col(0, 0, 0, 0);
-    };
-    
+        
     switch (Array.length x, Array.length (Array.get x 0)) {
         | (1, 1) => (Array.get (Array.get x 0) 0);
         | (2, 2) => ((Array.get (Array.get x 0) 0) *. (Array.get (Array.get x 1) 1))
@@ -116,6 +117,50 @@ let transpose = fun (x) => {
         };
     };
     m;
+};
+
+/*
+ * returns the inverse of a matrix
+ * array (array float) => array (array float)
+ */
+let inverse = fun (x) => {
+
+    /*
+     * returns the matrix of minors
+     * array (array float) => array (array float)
+     */
+    let minors = fun (x) => {
+        Array.mapi (fun i el => {
+            Array.mapi (fun j el_2 => {
+                determinant(remove_row_and_col(x, i, j));
+            }) el;
+        }) x;
+    };
+    
+    /* 
+     * returns the cofactor matrix
+     * array (array float) => array (array float)
+     */
+    let cofactors = fun (x) => {
+        Array.mapi (fun i el => {
+            Array.mapi (fun j el_2 => {
+                switch (((i mod 2 == 0) && (j mod 2 != 0)) || ((i mod 2 != 0) && (j mod 2 == 0))) {
+                    | true => el_2 *. -1.;
+                    | false => el_2;
+                };
+            }) el;
+        }) x;
+    };
+
+    let d = determinant(x);
+    let new_x = transpose(cofactors(minors(x)));
+
+    Array.map (fun el => {
+        Array.map (fun el_2 => {
+            el_2 /. d;
+        }) el;
+    }) new_x;
+    
 };
 
 /*
@@ -162,7 +207,7 @@ let distance = fun (x, y) => {
             | ([], []) => 0.;
             | ([headx, ...tailx], [heady, ...taily]) =>
                 (headx -. heady) *. (headx -. heady) +. sumsquared(tailx, taily);
-            | _ => failwith "Input lists should be of equal length"; /* TODO error */
+            | _ => failwith "Input lists should be of equal length"; 
         };
     };
     let sqsum = sumsquared(x, y);

@@ -217,8 +217,7 @@ let train = fun (x, y, alpha, try_closed_formula, use_bgd) => {
         theta;
     };
 
-    /*1 is interted into into x because 1 * some multiplier 
-    will be the constant in our regression function*/
+    /* insert the intercept into our regression model*/
     let new_x = Array.append x (Array.make 1 1.);
     let xT = transpose(x);
     switch (try_closed_formula) {
